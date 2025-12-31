@@ -64,29 +64,50 @@ for tier in range(1, tiers + 1):
     lookup_table[tier] = tier_lookup
 
 user_exp = int(input("What is your current exp ?\n"))
-user_kills = int(input("How many kills are you going to get ?\n"))
+user_score = int(input("How many score are you going to get ?\n"))
+
+bonus_exp = 0
+if input("Will you finish the game ?\n") == "Yes":
+    bonus_exp += 100
+if input("Will you win ?\n") == "Yes":
+    bonus_exp += 50
+# points calculation must be in count TODO 6.5xp per point
 
 user_tier = 0
 user_lvl = 0
 
-for t, xp in tiers_max_exp.items():
-    if xp < 0 or xp > 3644000:
-        print("You are too far")
-        exit()
-    
-    if xp < user_exp and t < 8:
-        continue
-    else:
-        user_tier = t
-        break
+def get_tier_by(exp):
+    for t, xp in tiers_max_exp.items():
+        if xp < 0 or xp > 3644000:
+            print("You are too far")
+            exit()
+
+        if xp < exp and t < 8:
+            continue
+        else:
+            return t
+
+user_tier = get_tier_by(user_exp)
 
 print(f"Your tier is {user_tier}")
 
-for lookup_lvl, lookup_xp in lookup_table[user_tier].items():
-    if user_exp < lookup_xp:
-        continue
-    else:
-        user_lvl = lookup_lvl
+def get_lvl_by(p_tier, p_exp):
+    lvl = -1
+    for lookup_lvl, lookup_xp in lookup_table[p_tier].items():
+        if lookup_xp <= p_exp:
+            lvl = lookup_lvl
+    return lvl
 
-user_grade = user_lvl // 25
+user_lvl = get_lvl_by(user_tier, user_exp)
+
+user_grade = (user_lvl - 1) // 25
+
 print(f"Your are a : {get_key_at(grades, user_grade)}, lvl {user_lvl}")
+
+new_exp_amount = user_exp + user_score * 3 # 3 xp per score (avg)
+new_tier = get_tier_by(new_exp_amount)
+new_user_lvl = get_lvl_by(new_tier, new_exp_amount)
+print(f"new exp amount {new_exp_amount}")
+new_user_grade = (new_user_lvl - 1) // 25
+
+print(f"Your will be a : {get_key_at(grades, new_user_grade)}, lvl {new_user_lvl}")
